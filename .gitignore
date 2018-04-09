@@ -1,0 +1,5 @@
+/target
+/log*
+manifest.xml
+node_modules
+*.swp
