@@ -1,0 +1,4 @@
+Customer.accountNumber
+Customer.ContactDetails.phone
+Customer.ContactDetails.email
+Customer.ContactDetails.contactOK

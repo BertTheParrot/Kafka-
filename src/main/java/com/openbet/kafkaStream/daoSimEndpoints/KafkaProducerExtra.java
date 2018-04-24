@@ -1,4 +1,4 @@
-package com.openbet.kafta.dao_test;
+package com.openbet.kafkaStream.daoSimEndpoints;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -16,12 +16,12 @@ public class KafkaProducerExtra {
 
     private final static String TOPIC = "customers";
     private final static String BOOTSTRAP_SERVERS = "localhost:9092,localhost:9093,localhost:9094";
-    private final static String CLIENT_ID_CONFIG = "KafkaProducer";
+    private final static String CLIENT_ID_CONFIG = "Producer";
     private final static Logger log = LoggerFactory.getLogger(KafkaProducerExtra.class);
-    private static Producer<Long,String> producer;
+    private static Producer<Long, String> producer;
 
 
-    public KafkaProducerExtra(){
+    public KafkaProducerExtra() {
         Properties props = new Properties();
 
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
@@ -32,6 +32,10 @@ public class KafkaProducerExtra {
         this.producer = new org.apache.kafka.clients.producer.KafkaProducer(props);
     }
 
+    public static void main(String... args) throws Exception {
+        KafkaProducerExtra producer = new KafkaProducerExtra();
+        producer.run(Integer.MAX_VALUE);
+    }
 
     public void run(final int sendMessageCount) throws InterruptedException {
 
@@ -42,11 +46,12 @@ public class KafkaProducerExtra {
         try {
             for (long index = time; index < time + sendMessageCount; index++) {
                 final ProducerRecord<Long, String> record =
-                        new ProducerRecord<>(TOPIC, index, "{ \"Customer.id\": \"123\", \"Customer.username\": \"123\", \"Customer.status\": \"123\", \"Customer.langRef\": \"123\", \"Customer.PersonalDetails.firstName\": \"123\", \"Customer.PersonalDetails.lastName\": \"123\", \"Customer.Regisration.source\": \"123\", \"Customer.Registration.countryRef\": \"CAN\", \"Customer.CustomerAddress.Address.stateRef\": \"123\", \"Customer.CustomerFlags\": \"123\", \"Customer.CustomerGroups\": \"123\", \"Customer.Account.currencyRef\": \"123\" }");
+                        new ProducerRecord<>(TOPIC, index, "{ \"Customer.id\": \"" + index + "\", \"Customer.username\": \"123\", \"Customer.status\": \"123\", \"Customer.langRef\": \"123\", \"Customer.PersonalDetails.firstName\": \"123\", \"Customer.PersonalDetails.lastName\": \"123\", \"Customer.Regisration.source\": \"123\", \"Customer.Registration.countryRef\": \"CAN\", \"Customer.CustomerAddress.Address.stateRef\": \"123\", \"Customer.CustomerFlags\": \"123\", \"Customer.CustomerGroups\": \"123\", \"Customer.Account.currencyRef\": \"123\" }");
                 producer.send(record, (metadata, exception) -> {
                     long elapsedTime = System.currentTimeMillis() - time;
-                    if (metadata != null) { System.out.printf("sent record(key=%s value=%s) " +
-                                    "meta(partition=%d, offset=%d) time=%d\n",
+                    if (metadata != null) {
+                        System.out.printf("sent record(key=%s value=%s) " +
+                                        "meta(partition=%d, offset=%d) time=%d\n",
                                 record.key(), record.value(), metadata.partition(),
                                 metadata.offset(), elapsedTime);
                         log.info("sent record(key=%s value=%s) " +
@@ -63,10 +68,5 @@ public class KafkaProducerExtra {
         } finally {
             producer.flush();
         }
-    }
-
-    public static void main(String... args) throws Exception {
-        KafkaProducerExtra producer = new KafkaProducerExtra();
-        producer.run(Integer.MAX_VALUE);
     }
 }

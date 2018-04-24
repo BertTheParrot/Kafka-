@@ -1,32 +1,31 @@
-package com.openbet.kafta.dao.consumer;
+package com.openbet.kafkaStream.daoSimEndpoints;
 
-import com.openbet.kafta.utils.Filter;
-import com.openbet.kafta.dao.producer.KafkaProducer;
+import com.openbet.kafkaStream.dao.producer.Producer;
+import com.openbet.kafkaStream.utils.Filter;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Properties;
 
-public class KafkaConsumer implements Runnable{
+public class KafkaConsumeraux implements Runnable {
 
-    private final static String TOPIC = "customers";
+    private final static String TOPIC = "customers-aux";
     private final static String BOOTSTRAP_SERVERS = "localhost:9092,localhost:9093,localhost:9094";
-    private final static String CLIENT_ID_CONFIG = "KafkaConsumer";
-    private final static Logger log = LoggerFactory.getLogger(KafkaConsumer.class);
+    private final static String CLIENT_ID_CONFIG = "Consumer";
+    private final static Logger log = LoggerFactory.getLogger(KafkaConsumeraux.class);
+    private static Producer producer;
     private static Consumer consumer;
     private static Filter filter;
 
-    public  static KafkaProducer producer;
-
-    public KafkaConsumer(){
+    public KafkaConsumeraux() throws IOException {
         final Properties props = new Properties();
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
@@ -40,11 +39,16 @@ public class KafkaConsumer implements Runnable{
         // Subscribe to the topic.
         consumer.subscribe(Collections.singletonList(TOPIC));
         this.consumer = consumer;
-        this.producer= new KafkaProducer();
-        this.filter= new Filter();
+        this.producer = new Producer();
+        this.filter = new Filter();
     }
 
-    public void run(){
+    public static void main(String... args) throws IOException {
+        KafkaConsumeraux b = new KafkaConsumeraux();
+        b.run();
+    }
+
+    public void run() {
 
         final int giveUp = 100;
         int noRecordsCount = 0;
@@ -59,23 +63,12 @@ public class KafkaConsumer implements Runnable{
             }
 
             for (ConsumerRecord<Long, String> record : consumerRecords) {
-                String customerInfo = record.value();
-                try {
-                    String filterInfo = filter.filter(customerInfo);
-                    producer.sendRecord(record,filterInfo);
-                } catch (JSONException e) {
-                    log.error(e.toString());
-                }
-
-
 
                 System.out.printf("consumer Record:(%d, %s, %d, %d)\n",
                         record.key(), record.value(),
                         record.partition(), record.offset());
 
-                log.info("consumer Record:(%d, %s, %d, %d)\n",
-                        record.key(), record.value(),
-                        record.partition(), record.offset());
+                //log.info("consumer Record:(%d, %s, %d, %d)\n",record.key(), record.value(),record.partition(), record.offset());
             }
 
             consumer.commitAsync();

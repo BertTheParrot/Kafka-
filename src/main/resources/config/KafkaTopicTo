@@ -1,0 +1,9 @@
+#TOPIC=Name of the topic to write to
+topic=customers
+#ProducerConfig.BOOTSTRAP_SERVERS_CONFIG=comma separated list of host:port
+bootstrap.servers=localhost:9092,localhost:9093,localhost:9094
+#ProducerConfig.GROUP_ID_CONFIG=Does Not Matter
+group.id=KafkaProducer
+#DONotChange
+key.serializer=org.apache.kafka.common.serialization.LongSerializer
+value.serializer=org.apache.kafka.common.serialization.StringDeserializer
